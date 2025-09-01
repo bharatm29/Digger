@@ -1,3 +1,5 @@
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+
 <!doctype html>
 <html lang="en">
 <head>
@@ -8,8 +10,12 @@
     <title>Repo Tree</title>
 </head>
 <body>
-<h2>You typed: <a href="${repo}">${repo}</a> </h2>
-
-<h3>Your token is: ${token} 😄</h3>
+<c:forEach var="obj" items="${objs}">
+    ${obj.name}<br>
+    ${obj.download_url}<br>
+    ${obj.url}<br>
+    ${obj.type}<br>
+    <hr>
+</c:forEach>
 </body>
 </html>

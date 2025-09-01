@@ -2,7 +2,7 @@ server:
   port: 4000
 
 credentials:
-    token: $GITHUB_TOKEN
+  token: ${GITHUB_TOKEN}
 
 spring:
   mvc:
