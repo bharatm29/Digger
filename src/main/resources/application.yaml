@@ -1,0 +1,11 @@
+server:
+  port: 4000
+
+credentials:
+    token: $GITHUB_TOKEN
+
+spring:
+  mvc:
+    view:
+      prefix: WEB-INF/jsp/
+      suffix: .jsp
