@@ -11,11 +11,17 @@
 </head>
 <body>
 <c:forEach var="obj" items="${objs}">
-    ${obj.name}<br>
-    ${obj.download_url}<br>
-    ${obj.url}<br>
-    ${obj.type}<br>
-    <hr>
+    <form action="/download" method="post">
+        <input type="hidden" name="download_url" value="${obj.download_url}"/>
+        <input type="hidden" name="url" value="${obj.url}"/>
+        <input type="hidden" name="name" value="${obj.name}"/>
+        <input type="hidden" name="type" value="${obj.type}"/>
+        <a href="#" class="file-link" onclick="this.closest('form').submit(); return false;">
+                ${obj.name}
+        </a>
+    </form>
 </c:forEach>
+
+<h4 style="color: red;">${error}</h4>
 </body>
 </html>
