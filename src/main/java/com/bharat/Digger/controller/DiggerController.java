@@ -46,6 +46,7 @@ public class DiggerController {
             return "RepoTree";
         }
 
+        model.put("root", url);
         model.put("objs", root.getEntries());
 
         return "RepoTree";
@@ -60,19 +61,19 @@ public class DiggerController {
             HttpServletResponse response,
             ModelMap model
     ) throws IOException {
-        System.out.println("Download: " + url);
         if ("dir".equals(type)) {
             var root = fetchRepo(url);
             if (root == null) {
                 model.put("error", "Malformed url: " + url);
             } else {
+                model.put("root", url);
                 model.put("objs", root.getEntries());
             }
 
             return "RepoTree";
         }
 
-        try (InputStream in = new URL(url).openStream()) {
+        try (InputStream in = new URL(download_url).openStream()) {
             response.setContentType("application/octet-stream");
             response.setHeader("Content-Disposition", "attachment; filename=\"" + name + "\"");
 
@@ -86,6 +87,12 @@ public class DiggerController {
         }
 
         return null; // don't render jsp
+    }
+
+    @PostMapping("/downloadDir")
+    public String downloadDir(@RequestParam String url, @RequestParam String repo) {
+        // FIXME: Download directory here
+        return null;
     }
 
     private DirObject fetchRepo(String url) {
