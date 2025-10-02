@@ -13,7 +13,7 @@
 <ul class="repo-list">
     <c:forEach var="obj" items="${objs}">
         <li class="${obj.type}" onclick="this.querySelector('form').submit();">
-            <form action="/download" method="post" style="margin:0;">
+            <form action="/show" method="post" style="margin:0;">
                 <input type="hidden" name="download_url" value="${obj.download_url}"/>
                 <input type="hidden" name="url" value="${obj.url}"/>
                 <input type="hidden" name="name" value="${obj.name}"/>

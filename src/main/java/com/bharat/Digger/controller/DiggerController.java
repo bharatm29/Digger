@@ -26,20 +26,35 @@ public class DiggerController {
     private final ConfigProperties config;
 
     @PostMapping("/show")
-    public String showTree(@RequestParam String repo, ModelMap model) {
-        model.put("repo", repo);
-
-        String[] splits = repo.split("/+");
-        if (splits.length < 4) {
-            model.put("error", "Malformed URI: " + repo);
-            return "RepoTree";
+    public String showTree(
+            @RequestParam(required = false) String repo,
+            @RequestParam(required = false) String name,
+            @RequestParam(required = false) String download_url,
+            @RequestParam(required = false) String url,
+            @RequestParam(required = false) String type,
+            HttpServletResponse response,
+            ModelMap model
+    ) throws IOException {
+        if (type != null && type.equals("file")) { // handle file download
+            return downloadFile(download_url, name, response);
         }
 
-        final String username = splits[2];
-        final String repoName = splits[3];
+        if (repo != null) { // root repo
+            model.put("repo", repo);
 
-        final String url = String.format("https://api.github.com/repos/%s/%s/contents", username, repoName);
+            String[] splits = repo.split("/+");
+            if (splits.length < 4) {
+                model.put("error", "Malformed URI: " + repo);
+                return "RepoTree";
+            }
 
+            final String username = splits[2];
+            final String repoName = splits[3];
+
+            url = String.format("https://api.github.com/repos/%s/%s/contents", username, repoName);
+        }
+
+        // common dir function
         var root = fetchRepo(url);
         if (root == null) {
             model.put("error", "Malformed url: " + url);
@@ -52,27 +67,7 @@ public class DiggerController {
         return "RepoTree";
     }
 
-    @PostMapping("/download")
-    public String downloadShi(
-            @RequestParam String name,
-            @RequestParam String download_url,
-            @RequestParam String url,
-            @RequestParam String type,
-            HttpServletResponse response,
-            ModelMap model
-    ) throws IOException {
-        if ("dir".equals(type)) {
-            var root = fetchRepo(url);
-            if (root == null) {
-                model.put("error", "Malformed url: " + url);
-            } else {
-                model.put("root", url);
-                model.put("objs", root.getEntries());
-            }
-
-            return "RepoTree";
-        }
-
+    public String downloadFile(String download_url, String name, HttpServletResponse response) throws IOException {
         try (InputStream in = new URL(download_url).openStream()) {
             response.setContentType("application/octet-stream");
             response.setHeader("Content-Disposition", "attachment; filename=\"" + name + "\"");
@@ -90,9 +85,8 @@ public class DiggerController {
     }
 
     @PostMapping("/downloadDir")
-    public String downloadDir(@RequestParam String url, @RequestParam String repo) {
+    public void downloadDir(@RequestParam(required = false) String url, @RequestParam(required = false) String repo) {
         // FIXME: Download directory here
-        return null;
     }
 
     private DirObject fetchRepo(String url) {
