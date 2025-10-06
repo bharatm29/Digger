@@ -1,8 +1,9 @@
 server:
   port: 4000
 
-credentials:
+digger:
   token: ${GITHUB_TOKEN}
+  temp_path: /tmp/test/
 
 spring:
   mvc:

@@ -16,6 +16,7 @@ import org.zeroturnaround.zip.ZipUtil;
 import org.zeroturnaround.zip.commons.FileUtils;
 
 import java.io.*;
+import java.net.URI;
 import java.net.URL;
 
 @Controller
@@ -72,7 +73,7 @@ public class DiggerController {
         final var dir = fetchRepo(url);
         assert dir != null;
 
-        String path = "/tmp/test/";
+        String path = config.getTempPath();
         if (dir.getPath().isEmpty() && dir.getName().isEmpty()) {
             path += reponame + "/";
         }
@@ -84,7 +85,7 @@ public class DiggerController {
         }
 
         final String root = dir.getName().isEmpty() ? reponame : dir.getName();
-        final String zipPath = "/tmp/test/%s.zip".formatted(root);
+        final String zipPath = config.getTempPath() + "%s.zip".formatted(root);
 
         ZipUtil.pack(new File(path), new File(zipPath), name -> root + "/" + name);
 
@@ -125,7 +126,7 @@ public class DiggerController {
 
         for(var file : dir.getEntries()) {
             if (file.getType().equals("file")) {
-                try (InputStream in = new URL(file.getDownload_url()).openStream()) {
+                try (InputStream in = URI.create(file.getDownload_url()).toURL().openStream()) {
                     OutputStream out = new FileOutputStream(newPath + file.getName());
                     byte[] buffer = new byte[8192];
                     int len;
@@ -146,7 +147,7 @@ public class DiggerController {
     }
 
     public String downloadFile(String download_url, String name, HttpServletResponse response) throws IOException {
-        try (InputStream in = new URL(download_url).openStream()) {
+        try (InputStream in = URI.create(download_url).toURL().openStream()) {
             response.setContentType("application/octet-stream");
             response.setHeader("Content-Disposition", "attachment; filename=\"" + name + "\"");
 
@@ -167,7 +168,7 @@ public class DiggerController {
         final HttpHeaders headers = new HttpHeaders();
         headers.add("Authorization", String.format("Bearer %s", config.getToken()));
         headers.add("Accept", "application/vnd.github.object");
-        HttpEntity request = new HttpEntity(headers);
+        HttpEntity<String> request = new HttpEntity<>(headers);
 
         try {
             var response = restTemplate.exchange(url, HttpMethod.GET, request, DirObject.class);
