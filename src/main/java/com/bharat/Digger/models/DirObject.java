@@ -10,5 +10,7 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 public class DirObject {
+    private String name;
+    private String path;
     private List<FileObject> entries;
 }

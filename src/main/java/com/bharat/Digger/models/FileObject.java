@@ -11,6 +11,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class FileObject {
     private String name;
+    private String path;
     private String url;
     private String download_url;
     private String type;

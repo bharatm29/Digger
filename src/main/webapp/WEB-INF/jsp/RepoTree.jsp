@@ -30,8 +30,8 @@
     </c:forEach>
 </ul>
 
-<form action="/downloadDir" method="post" style="margin:0;">
-    <input type="hidden" name="repo" value="${repo}"/>
+<form action="/downloaddir" method="post">
+    <input type="hidden" name="reponame" value="${reponame}"/>
     <button type="submit" name="url" value="${root}">Download</button>
 </form>
 

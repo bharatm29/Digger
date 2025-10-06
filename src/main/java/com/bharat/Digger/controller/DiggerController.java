@@ -4,19 +4,18 @@ import com.bharat.Digger.configuration.ConfigProperties;
 import com.bharat.Digger.models.DirObject;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.HttpStatus;
+import org.springframework.http.*;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
+import org.zeroturnaround.zip.NameMapper;
+import org.zeroturnaround.zip.ZipUtil;
+import org.zeroturnaround.zip.commons.FileUtils;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
+import java.io.*;
 import java.net.URL;
 
 @Controller
@@ -52,6 +51,7 @@ public class DiggerController {
             final String repoName = splits[3];
 
             url = String.format("https://api.github.com/repos/%s/%s/contents", username, repoName);
+            model.put("reponame", repoName);
         }
 
         // common dir function
@@ -65,6 +65,84 @@ public class DiggerController {
         model.put("objs", root.getEntries());
 
         return "RepoTree";
+    }
+
+    @PostMapping("/downloaddir")
+    public String downloadDir(@RequestParam String url, @RequestParam(required = false, defaultValue = "") String reponame, HttpServletResponse response) {
+        final var dir = fetchRepo(url);
+        assert dir != null;
+
+        String path = "/tmp/test/";
+        if (dir.getPath().isEmpty() && dir.getName().isEmpty()) {
+            path += reponame + "/";
+        }
+
+        recurseDownload(path, dir);
+
+        if (!dir.getPath().isEmpty()) {
+            path += dir.getName();
+        }
+
+        final String root = dir.getName().isEmpty() ? reponame : dir.getName();
+        final String zipPath = "/tmp/test/%s.zip".formatted(root);
+
+        ZipUtil.pack(new File(path), new File(zipPath), name -> root + "/" + name);
+
+        try (InputStream in = new FileInputStream(zipPath)) {
+            response.setContentType("application/octet-stream");
+            response.setHeader("Content-Disposition", "attachment; filename=\"" + root + ".zip" + "\"");
+
+            OutputStream out = response.getOutputStream();
+            byte[] buffer = new byte[8192];
+            int len;
+            while ((len = in.read(buffer)) != -1) {
+                out.write(buffer, 0, len);
+            }
+            out.flush();
+        } catch (FileNotFoundException e) {
+            throw new RuntimeException("Could not find zip file: " + zipPath);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+
+        try {
+            FileUtils.deleteDirectory(new File(path));
+            if (!new File(zipPath).delete()) {
+                System.out.println("Could not delete zip file: " + zipPath);
+            }
+        } catch (IOException e) {
+            System.out.println("Could not delete directory: " + path);
+        }
+
+        return null; // don't render jsp
+    }
+
+    private void recurseDownload(final String path, DirObject dir) {
+        if (dir == null) return;
+
+        String newPath = path + dir.getName() + "/";
+        new File(newPath).mkdirs(); // FIXME: This may throw if it does not have required permission, handle
+
+        for(var file : dir.getEntries()) {
+            if (file.getType().equals("file")) {
+                try (InputStream in = new URL(file.getDownload_url()).openStream()) {
+                    OutputStream out = new FileOutputStream(newPath + file.getName());
+                    byte[] buffer = new byte[8192];
+                    int len;
+                    while ((len = in.read(buffer)) != -1) {
+                        out.write(buffer, 0, len);
+                    }
+                    out.flush();
+                    out.close();
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
+            } else {
+                var dirr = fetchRepo(file.getUrl());
+                assert dirr != null;
+                recurseDownload(newPath, dirr);
+            }
+        }
     }
 
     public String downloadFile(String download_url, String name, HttpServletResponse response) throws IOException {
@@ -84,23 +162,24 @@ public class DiggerController {
         return null; // don't render jsp
     }
 
-    @PostMapping("/downloadDir")
-    public void downloadDir(@RequestParam(required = false) String url, @RequestParam(required = false) String repo) {
-        // FIXME: Download directory here
-    }
-
+    // FIXME: Function returns null if it couldn't fetch the dir/repo
     private DirObject fetchRepo(String url) {
         final HttpHeaders headers = new HttpHeaders();
         headers.add("Authorization", String.format("Bearer %s", config.getToken()));
         headers.add("Accept", "application/vnd.github.object");
         HttpEntity request = new HttpEntity(headers);
 
-        var response = restTemplate.exchange(url, HttpMethod.GET, request, DirObject.class);
+        try {
+            var response = restTemplate.exchange(url, HttpMethod.GET, request, DirObject.class);
+            if(response.getStatusCode() != HttpStatus.OK) {
+                return null;
+            }
 
-        if(response.getStatusCode() != HttpStatus.OK) {
-            return null;
+            return response.getBody();
+        } catch(HttpClientErrorException e) {
+            System.out.println("Couldn't fetch contents of: " + url);
         }
 
-        return response.getBody();
+        return null;
     }
 }
