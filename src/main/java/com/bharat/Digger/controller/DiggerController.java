@@ -4,23 +4,27 @@ import com.bharat.Digger.configuration.ConfigProperties;
 import com.bharat.Digger.models.DirObject;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.*;
+import lombok.extern.log4j.Log4j2;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
-import org.zeroturnaround.zip.NameMapper;
 import org.zeroturnaround.zip.ZipUtil;
 import org.zeroturnaround.zip.commons.FileUtils;
 
 import java.io.*;
 import java.net.URI;
-import java.net.URL;
+import java.nio.file.Files;
 
 @Controller
 @RequiredArgsConstructor
+@Log4j2
 public class DiggerController {
     private final RestTemplate restTemplate;
     private final ConfigProperties config;
@@ -69,7 +73,7 @@ public class DiggerController {
     }
 
     @PostMapping("/downloaddir")
-    public String downloadDir(@RequestParam String url, @RequestParam(required = false, defaultValue = "") String reponame, HttpServletResponse response) {
+    public String downloadDir(@RequestParam String url, @RequestParam(required = false, defaultValue = "") String reponame, HttpServletResponse response) throws IOException {
         final var dir = fetchRepo(url);
         assert dir != null;
 
@@ -108,23 +112,21 @@ public class DiggerController {
 
         try {
             FileUtils.deleteDirectory(new File(path));
-            if (!new File(zipPath).delete()) {
-                System.out.println("Could not delete zip file: " + zipPath);
-            }
-        } catch (IOException e) {
-            System.out.println("Could not delete directory: " + path);
+            Files.delete(new File(zipPath).toPath());
+        } catch (Exception e) {
+            log.error("Could not delete directory {}: {}", path, e.getMessage());
         }
 
         return null; // don't render jsp
     }
 
-    private void recurseDownload(final String path, DirObject dir) {
+    private void recurseDownload(final String path, DirObject dir) throws IOException {
         if (dir == null) return;
 
         String newPath = path + dir.getName() + "/";
         new File(newPath).mkdirs(); // FIXME: This may throw if it does not have required permission, handle
 
-        for(var file : dir.getEntries()) {
+        for (var file : dir.getEntries()) {
             if (file.getType().equals("file")) {
                 try (InputStream in = URI.create(file.getDownload_url()).toURL().openStream()) {
                     OutputStream out = new FileOutputStream(newPath + file.getName());
@@ -164,7 +166,7 @@ public class DiggerController {
     }
 
     // FIXME: Function returns null if it couldn't fetch the dir/repo
-    private DirObject fetchRepo(String url) {
+    private DirObject fetchRepo(String url) throws IOException {
         final HttpHeaders headers = new HttpHeaders();
         headers.add("Authorization", String.format("Bearer %s", config.getToken()));
         headers.add("Accept", "application/vnd.github.object");
@@ -172,15 +174,14 @@ public class DiggerController {
 
         try {
             var response = restTemplate.exchange(url, HttpMethod.GET, request, DirObject.class);
-            if(response.getStatusCode() != HttpStatus.OK) {
+            if (response.getStatusCode() != HttpStatus.OK) {
                 return null;
             }
 
             return response.getBody();
-        } catch(HttpClientErrorException e) {
-            System.out.println("Couldn't fetch contents of: " + url);
+        } catch (HttpClientErrorException e) {
+            log.error("Couldn't fetch contents of {}: {}", url, e.getMessage());
+            throw new IOException(e.getMessage()); // FIXME: For now just throwing IOException to centralised error handler
         }
-
-        return null;
     }
 }
