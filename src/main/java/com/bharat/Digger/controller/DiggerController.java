@@ -43,7 +43,7 @@ public class DiggerController {
 
             String[] splits = repo.split("/+");
             if (splits.length < 4) {
-                model.put(ERROR, "Malformed URI: " + repo);
+                model.put(ERROR, "Malformed or Invalid URI: " + repo);
                 return REPO_TREE;
             }
 
@@ -57,7 +57,7 @@ public class DiggerController {
         // common dir function
         var root = service.fetchRepo(url);
         if (root == null) {
-            model.put(ERROR, "Malformed url: " + url);
+            model.put(ERROR, "Malformed or Invalid url: " + url);
             return REPO_TREE;
         }
 

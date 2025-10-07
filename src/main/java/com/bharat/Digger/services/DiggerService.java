@@ -79,8 +79,10 @@ public class DiggerService {
             return response.getBody();
         } catch (HttpClientErrorException e) {
             log.error("Couldn't fetch contents of {}: {}", url, e.getMessage());
-            throw new IOException(e.getMessage()); // FIXME: For now just throwing IOException to centralised error handler
+            // throw new IOException(e.getMessage()); // FIXME: For now just throwing IOException to centralised error handler
         }
+
+        return null;
     }
 
     public void dispatchFileToResponse(
