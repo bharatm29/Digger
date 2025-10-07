@@ -32,7 +32,7 @@
 
 <form action="/downloaddir" method="post">
     <input type="hidden" name="reponame" value="${reponame}"/>
-    <button type="submit" name="url" class="download" value="${root}">Download</button>
+    <button type="submit" name="url" class="button" value="${root}">Download</button>
 </form>
 
 <c:if test="${not empty error}">

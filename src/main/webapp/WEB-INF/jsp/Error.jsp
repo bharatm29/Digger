@@ -3,12 +3,16 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport"
-          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
-    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+          content="width=device-width, initial-scale=1.0">
     <title>Error!</title>
+    <link rel="stylesheet" type="text/css" href="/css/style.css">
 </head>
 <body>
-    Some Error happened:<br>
-    <h3>${message}</h3>
+<div class="error-container">
+    <h2>Error!</h2>
+    <p class="error-message">Some error happened:</p>
+    <h3 class="error-detail">${message}</h3>
+    <a href="/" class="button">Go Home</a>
+</div>
 </body>
 </html>

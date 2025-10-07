@@ -76,7 +76,7 @@ ul.repo-list li:hover {
     text-align: center;
 }
 
-.download {
+.button {
     display: block;
     margin: 1.25rem auto 0;
     justify-content: center;
@@ -91,7 +91,7 @@ ul.repo-list li:hover {
     transition: background 0.2s, transform 0.1s;
 }
 
-.download:hover {
+.button:hover {
     background: #9fe39f;
     transform: translateY(-2px);
 }
