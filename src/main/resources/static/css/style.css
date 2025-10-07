@@ -1,6 +1,6 @@
 body {
     font-family: Arial, sans-serif;
-    background: #1e1e1e; /* dark-tinted background */
+    background: #1e1e1e;
     color: #f0f0f0;
     height: 100vh;
     display: flex;
@@ -11,7 +11,7 @@ body {
 }
 
 h2 {
-    color: #a2d18c; /* light green */
+    color: #a2d18c;
     text-align: center;
     font-weight: bold;
     margin-bottom: 25px;
@@ -19,7 +19,7 @@ h2 {
 }
 
 .repo-form {
-    background: #2b2b2b; /* dark grey/green */
+    background: #2b2b2b;
     padding: 30px 40px;
     border-radius: 10px;
     box-shadow: 0 4px 10px rgba(0,0,0,0.4);
@@ -32,7 +32,7 @@ h2 {
     display: block;
     margin-bottom: 8px;
     font-weight: bold;
-    color: #9fe39f; /* light green */
+    color: #9fe39f;
 }
 
 .repo-form input[type="text"] {
@@ -52,9 +52,8 @@ h2 {
     box-shadow: 0 0 5px rgba(159, 227, 159, 0.5);
 }
 
-/* Submit button */
 .repo-form input[type="submit"] {
-    background: #6abf69; /* light green */
+    background: #6abf69;
     color: #1e1e1e;
     border: none;
     padding: 10px 20px;
@@ -66,6 +65,6 @@ h2 {
 }
 
 .repo-form input[type="submit"]:hover {
-    background: #9fe39f; /* brighter green */
+    background: #9fe39f;
     transform: translateY(-2px);
 }

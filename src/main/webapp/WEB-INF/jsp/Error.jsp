@@ -8,6 +8,7 @@
     <title>Error!</title>
 </head>
 <body>
-    Some Error happened bro: ${message}
+    Some Error happened:<br>
+    <h3>${message}</h3>
 </body>
 </html>

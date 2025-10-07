@@ -7,11 +7,16 @@ body {
 }
 
 h2 {
-    color: #a2d18c; /* light green */
-    text-align: center;
-    margin-bottom: 25px;
+    color: #a2d18c;
     font-weight: bold;
     text-shadow: 1px 1px 2px #000;
+
+    /*render h2 which will show the current path as `code blocks`*/
+    font-family: 'Courier New', Courier, monospace;
+    padding: 6px 12px;
+    border-radius: 6px;
+    text-align: center;
+    margin: 0 auto 25px auto;
 }
 
 ul.repo-list {
@@ -22,10 +27,10 @@ ul.repo-list {
 }
 
 ul.repo-list li {
-    background: #2b2b2b; /* dark greenish/grey */
+    background: #2b2b2b;
     margin: 6px 0;
     padding: 12px 16px;
-    border-left: 5px solid #6abf69; /* light green accent */
+    border-left: 5px solid #6abf69;
     border-radius: 6px;
     box-shadow: 0 1px 3px rgba(0,0,0,0.5);
     display: flex;
@@ -40,7 +45,7 @@ ul.repo-list li:hover {
 }
 
 .file-link {
-    color: #9fe39f; /* light green for links */
+    color: #9fe39f;
     text-decoration: none;
     font-weight: 500;
     flex: 1;
@@ -57,11 +62,11 @@ ul.repo-list li:hover {
 }
 
 .dir .icon {
-    color: #f0ff8c; /* yellowish-green for folders */
+    color: #f0ff8c;
 }
 
 .file .icon {
-    color: #8cff8c; /* bright green for files */
+    color: #8cff8c;
 }
 
 .error {
@@ -69,4 +74,24 @@ ul.repo-list li:hover {
     margin-top: 20px;
     font-weight: bold;
     text-align: center;
+}
+
+.download {
+    display: block;
+    margin: 1.25rem auto 0;
+    justify-content: center;
+    background: #6abf69;
+    color: #1e1e1e;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 6px;
+    font-size: 16px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: background 0.2s, transform 0.1s;
+}
+
+.download:hover {
+    background: #9fe39f;
+    transform: translateY(-2px);
 }

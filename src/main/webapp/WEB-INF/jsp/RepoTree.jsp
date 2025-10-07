@@ -4,11 +4,11 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Repo Tree</title>
+    <title>${reponame}${dirname}</title>
     <link rel="stylesheet" type="text/css" href="/css/repo.css">
 </head>
 <body>
-<h2>Repository Tree</h2>
+<h2>${reponame}${dirname}</h2>
 
 <ul class="repo-list">
     <c:forEach var="obj" items="${objs}">
@@ -32,7 +32,7 @@
 
 <form action="/downloaddir" method="post">
     <input type="hidden" name="reponame" value="${reponame}"/>
-    <button type="submit" name="url" value="${root}">Download</button>
+    <button type="submit" name="url" class="download" value="${root}">Download</button>
 </form>
 
 <c:if test="${not empty error}">

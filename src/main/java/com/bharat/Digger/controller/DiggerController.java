@@ -21,6 +21,7 @@ import org.zeroturnaround.zip.commons.FileUtils;
 import java.io.*;
 import java.net.URI;
 import java.nio.file.Files;
+
 import static com.bharat.Digger.configuration.DiggerStrings.*;
 
 @Controller
@@ -69,6 +70,7 @@ public class DiggerController {
 
         model.put(ROOT, url);
         model.put(OBJS, root.getEntries());
+        model.put(DIRNAME, root.getPath());
 
         return REPO_TREE;
     }
