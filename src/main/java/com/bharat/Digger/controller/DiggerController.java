@@ -21,6 +21,7 @@ import org.zeroturnaround.zip.commons.FileUtils;
 import java.io.*;
 import java.net.URI;
 import java.nio.file.Files;
+import static com.bharat.Digger.configuration.DiggerStrings.*;
 
 @Controller
 @RequiredArgsConstructor
@@ -44,32 +45,32 @@ public class DiggerController {
         }
 
         if (repo != null) { // root repo
-            model.put("repo", repo);
+            model.put(REPO, repo);
 
             String[] splits = repo.split("/+");
             if (splits.length < 4) {
-                model.put("error", "Malformed URI: " + repo);
-                return "RepoTree";
+                model.put(ERROR, "Malformed URI: " + repo);
+                return REPO_TREE;
             }
 
             final String username = splits[2];
             final String repoName = splits[3];
 
-            url = String.format("https://api.github.com/repos/%s/%s/contents", username, repoName);
-            model.put("reponame", repoName);
+            url = String.format(GITHUB_FORMAT, username, repoName);
+            model.put(REPONAME, repoName);
         }
 
         // common dir function
         var root = fetchRepo(url);
         if (root == null) {
-            model.put("error", "Malformed url: " + url);
-            return "RepoTree";
+            model.put(ERROR, "Malformed url: " + url);
+            return REPO_TREE;
         }
 
-        model.put("root", url);
-        model.put("objs", root.getEntries());
+        model.put(ROOT, url);
+        model.put(OBJS, root.getEntries());
 
-        return "RepoTree";
+        return REPO_TREE;
     }
 
     @PostMapping("/downloaddir")
